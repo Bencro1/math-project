@@ -56,7 +56,7 @@ class Analysis:
         import matplotlib.pyplot as plt
         import seaborn as sns
 
-        cols = ['Age', 'EducationField', 'JobRole', 'MonthlyIncome', 'YearsAtCompany', 'WorkLifeBalance']
+        cols = ['Age', 'EducationField', 'JobRole', 'MonthlyIncome', 'YearsAtCompany']
         for col in cols:
             plt.figure(figsize=(10,6))
             if pd.api.types.is_numeric_dtype(self.df[col]):
@@ -67,6 +67,8 @@ class Analysis:
                 plt.ylabel("Number of Employees")
             else:
                 # For categorical variables, create a countplot with hue=Attrition
+                if col == 'WorkLifeBalance':
+                    continue
                 sns.countplot(data=self.df, x=col, hue='Attrition')
                 plt.title(f"Number of Employees by {col} and Attrition")
                 plt.xlabel(col)
@@ -92,15 +94,20 @@ class Analysis:
         for var in variables:
             plt.figure(figsize=(8,6))
             ct = pd.crosstab(self.df[var], self.df['Attrition'], normalize='index') * 100
+            counts = self.df[var].value_counts().reindex([1, 2, 3, 4], fill_value=0)
             ax = ct.plot(kind='bar', stacked=True)
             plt.title(f"Percentage of Attrition by {var}")
             plt.xlabel(var)
             plt.ylabel("Percentage (%)")
             plt.legend(title='Attrition')
             plt.xticks(rotation=45, ha='right')
-            # Remove the value labels on top of bars
-            for container in ax.containers:
-                ax.bar_label(container, labels=['']*len(container))
+            # Add count labels on top of bars, only once at the top of each column
+            labels = [str(counts.get(i, 0)) for i in range(1, 5)]
+            for i, container in enumerate(ax.containers):
+                if i == 0:
+                    ax.bar_label(container, labels=labels)
+                else:
+                    ax.bar_label(container, labels=['']*len(labels))
             plt.tight_layout()
             plt.show()
 

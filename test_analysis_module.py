@@ -12,15 +12,68 @@ def run_tests():
     loader.clean_data()
 
     analysis = am.Analysis(loader.df)
-    print("Descriptive statistics:")
-    print(analysis.descriptive_statistics())
-
-    # Removed plotting distribution of EnvironmentSatisfaction
-    # Removed plotting boxplot of Attrition vs MonthlyIncome
-    # Removed plotting correlation matrix
+    print("Discrete statistics:")
+    import scipy.stats as stats
+    cols = ['Age', 'MonthlyIncome', 'YearsAtCompany', 'DistanceFromHome']
+    discrete_stats = {}
+    total_employees = len(analysis.df)
+    for col in cols:
+        if col == 'Attrition':
+            attrition_yes_count = analysis.df[analysis.df['Attrition'] == 'Yes'].shape[0]
+            discrete_stats[col] = {
+                'count': attrition_yes_count,
+                'percentage': (attrition_yes_count / total_employees) * 100
+            }
+        elif col == 'MaritalStatus':
+            mode_val = analysis.df[col].mode()[0]
+            discrete_stats[col] = {
+                'mode': mode_val,
+                'min': None,
+                'max': None,
+                'mean': None,
+                'median': None,
+                'range': None,
+                'variance': None,
+                'std_dev': None
+            }
+        else:
+            col_data = analysis.df[col]
+            discrete_stats[col] = {
+                'mean': col_data.mean(),
+                'median': col_data.median(),
+                'mode': col_data.mode()[0],
+                'range': col_data.max() - col_data.min(),
+                'variance': col_data.var(),
+                'std_dev': col_data.std(),
+                'min': col_data.min(),
+                'max': col_data.max()
+            }
+    from tabulate import tabulate
+    # Convert discrete_stats dict to a table format for pretty printing
+    headers = ["Variable", "Mean", "Median", "Mode", "Range", "Variance", "Std Dev", "Min", "Max"]
+    table = []
+    for var, stats in discrete_stats.items():
+        row = [
+            var,
+            f"{stats.get('mean', ''):.2f}" if stats.get('mean') is not None else "",
+            f"{stats.get('median', ''):.2f}" if stats.get('median') is not None else "",
+            f"{stats.get('mode', '')}" if stats.get('mode') is not None else "",
+            f"{stats.get('range', ''):.2f}" if stats.get('range') is not None else "",
+            f"{stats.get('variance', ''):.2f}" if stats.get('variance') is not None else "",
+            f"{stats.get('std_dev', ''):.2f}" if stats.get('std_dev') is not None else "",
+            f"{stats.get('min', ''):.2f}" if stats.get('min') is not None else "",
+            f"{stats.get('max', ''):.2f}" if stats.get('max') is not None else ""
+        ]
+        table.append(row)
+    print("\nDiscrete Statistics Table:")
+    print(tabulate(table, headers=headers, tablefmt="psql"))
 
     print("Plotting attrition vs all variables...")
     analysis.plot_attrition_vs_all()
+
+    # Removed plotting StandardHours distribution as method does not exist
+    # print("Plotting StandardHours distribution...")
+    # analysis.plot_standard_hours_distribution()
 
     print("Plotting percentage bar charts for selected variables...")
     analysis.plot_percentage_bars()
