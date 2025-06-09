@@ -1,5 +1,7 @@
 import sys
 import os
+from tabulate import tabulate
+from sklearn.metrics import confusion_matrix, classification_report
 sys.path.insert(0, os.path.abspath("python-analysis"))
 
 import analysis_module as am
@@ -48,7 +50,7 @@ def run_tests():
                 'min': col_data.min(),
                 'max': col_data.max()
             }
-    from tabulate import tabulate
+    
     # Convert discrete_stats dict to a table format for pretty printing
     headers = ["Variable", "Mean", "Median", "Mode", "Range", "Variance", "Std Dev", "Min", "Max"]
     table = []
@@ -94,5 +96,34 @@ def run_tests():
     print("Model Coefficients:")
     print(coeffs)
 
+
+def run_gd_logistic_regression():
+    loader = am.DataLoader()
+    loader.load_csv_files()
+    loader.load_excel_file()
+    loader.merge_data()
+    loader.clean_data()
+
+    analysis = am.Analysis(loader.df)
+    analysis.prepare_data_for_gd_logistic()
+
+    # Initialize and train your custom logistic regression
+    gd_model = am.LogisticRegressionGD(learning_rate=0.01, num_iterations=10000)
+    gd_model.fit(analysis.X_train, analysis.y_train)
+
+    # Predict
+    y_pred = gd_model.predict(analysis.X_test)
+
+    # Evaluate
+    print("\n--- Custom Logistic Regression (Gradient Descent) ---")
+    print("Confusion Matrix:")
+    print(confusion_matrix(analysis.y_test, y_pred))
+
+    print("\nClassification Report:")
+    print(classification_report(analysis.y_test, y_pred))
+
+
+
 if __name__ == "__main__":
-    run_tests()
+    #run_tests()
+    run_gd_logistic_regression()

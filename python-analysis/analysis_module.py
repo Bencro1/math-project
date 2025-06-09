@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 from sklearn.preprocessing import StandardScaler
 from sklearn.model_selection import train_test_split
-from sklearn.linear_model import LogisticRegression
+from sklearn.linear_model import LogisticRegression as SklearnLogisticRegression
 from sklearn.metrics import confusion_matrix, classification_report
 
 class DataLoader:
@@ -144,7 +144,7 @@ class Analysis:
             X_scaled, y, test_size=0.2, random_state=42)
 
     def train_logistic_regression(self, max_iter=1000):
-        self.model = LogisticRegression(max_iter=max_iter)
+        self.model = SklearnLogisticRegression(max_iter=max_iter)
         self.model.fit(self.X_train, self.y_train)
 
     def evaluate_model(self):
@@ -183,3 +183,59 @@ class Analysis:
         sns.boxplot(x='Attrition', y=column, data=self.df)
         plt.title(f"{column} by Attrition")
         plt.show()
+
+
+    def prepare_data_for_gd_logistic(self, target_col='Attrition'):
+        # Encode target variable
+        self.df[target_col] = self.df[target_col].map({'Yes': 1, 'No': 0})
+
+        features = [
+            'Age', 'EducationField', 'Gender', 'MaritalStatus',
+            'BusinessTravel', 'Department', 'JobRole',
+            'MonthlyIncome', 'YearsAtCompany',
+            'EnvironmentSatisfaction', 'JobSatisfaction', 'WorkLifeBalance'
+        ]
+
+        X = self.df[features]
+        y = self.df[target_col]
+
+        # One-Hot Encode categorical variables
+        X = pd.get_dummies(X, drop_first=True)
+
+        # Normalize numeric features
+        scaler = StandardScaler()
+        numeric_cols = ['Age', 'MonthlyIncome', 'YearsAtCompany']
+        X[numeric_cols] = scaler.fit_transform(X[numeric_cols])
+
+        # 👇 Cast explicitly to float64
+        self.X_train, self.X_test, self.y_train, self.y_test = train_test_split(
+            X.values.astype(np.float64), y.values.astype(np.float64), test_size=0.2, random_state=42)
+
+
+
+import numpy as np
+class LogisticRegressionGD:
+    def __init__(self, learning_rate=0.01, num_iterations=1000):
+        self.learning_rate = learning_rate
+        self.num_iterations = num_iterations
+        
+    def sigmoid(self, z):
+        z = np.array(z, dtype=np.float64)   # ensure it's proper numpy float
+        return 1 / (1 + np.exp(-z))
+    
+    def fit(self, X, y):
+        X = np.hstack((np.ones((X.shape[0], 1)), X))
+        self.theta = np.zeros(X.shape[1])
+
+        for i in range(self.num_iterations):
+            z = np.dot(X, self.theta)
+            h = self.sigmoid(z)
+            gradient = np.dot(X.T, (h - y)) / y.size
+            self.theta -= self.learning_rate * gradient
+            
+    def predict_prob(self, X):
+        X = np.hstack((np.ones((X.shape[0], 1)), X))
+        return self.sigmoid(np.dot(X, self.theta))
+    
+    def predict(self, X, threshold=0.5):
+        return self.predict_prob(X) >= threshold
