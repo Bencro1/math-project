@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 from sklearn.preprocessing import StandardScaler
 from sklearn.model_selection import train_test_split
-from sklearn.linear_model import LogisticRegression
+from sklearn.linear_model import LogisticRegression as SklearnLogisticRegression
 from sklearn.metrics import confusion_matrix, classification_report
 
 class DataLoader:
@@ -144,7 +144,7 @@ class Analysis:
             X_scaled, y, test_size=0.2, random_state=42)
 
     def train_logistic_regression(self, max_iter=1000):
-        self.model = LogisticRegression(max_iter=max_iter)
+        self.model = SklearnLogisticRegression(max_iter=max_iter)
         self.model.fit(self.X_train, self.y_train)
 
     def evaluate_model(self):
@@ -184,228 +184,58 @@ class Analysis:
         plt.title(f"{column} by Attrition")
         plt.show()
 
-    def plot_job_involvement_vs_attrition(self):
-        import matplotlib.pyplot as plt
-        import pandas as pd
 
-        plt.figure(figsize=(8,6))
-        ct = pd.crosstab(self.df['JobInvolvement'], self.df['Attrition'], normalize='index') * 100
-        counts = self.df['JobInvolvement'].value_counts().sort_index()
-        ax = ct.plot(kind='bar', stacked=True)
-        plt.title("Percentage of Attrition by Job Involvement")
-        plt.xlabel("Job Involvement")
-        plt.ylabel("Percentage (%)")
-        plt.legend(title='Attrition')
-        plt.xticks(rotation=0)
-        # Add count labels on top of bars, only once at the top of each column
-        labels = [str(counts.get(i, 0)) for i in sorted(counts.index)]
-        for i, container in enumerate(ax.containers):
-            if i == 0:
-                ax.bar_label(container, labels=labels)
-            else:
-                ax.bar_label(container, labels=['']*len(labels))
-        plt.tight_layout()
-        plt.show()
+    def prepare_data_for_gd_logistic(self, target_col='Attrition'):
+        # Encode target variable
+        self.df[target_col] = self.df[target_col].map({'Yes': 1, 'No': 0})
 
-    def plot_num_companies_vs_attrition(self):
-        import matplotlib.pyplot as plt
-        import pandas as pd
+        features = [
+            'Age', 'EducationField', 'Gender', 'MaritalStatus',
+            'BusinessTravel', 'Department', 'JobRole',
+            'MonthlyIncome', 'YearsAtCompany',
+            'EnvironmentSatisfaction', 'JobSatisfaction', 'WorkLifeBalance'
+        ]
 
-        plt.figure(figsize=(8,6))
-        ct = pd.crosstab(self.df['NumCompaniesWorked'], self.df['Attrition'])
-        counts = self.df['NumCompaniesWorked'].value_counts().sort_index()
-        ax = ct.plot(kind='bar', stacked=False)
-        plt.title("Number of Employees by NumCompaniesWorked and Attrition")
-        plt.xlabel("Number of Companies Worked")
-        plt.ylabel("Number of Employees")
-        plt.legend(title='Attrition')
-        plt.xticks(rotation=0)
-        # Add count labels on top of bars, only once at the top of each column
-        labels = [str(counts.get(i, 0)) for i in sorted(counts.index)]
-        for i, container in enumerate(ax.containers):
-            if i == 0:
-                ax.bar_label(container, labels=labels)
-            else:
-                ax.bar_label(container, labels=['']*len(labels))
-        plt.tight_layout()
-        plt.show()
+        X = self.df[features]
+        y = self.df[target_col]
 
-    def plot_percent_salary_hike_vs_attrition(self):
-        import matplotlib.pyplot as plt
-        import pandas as pd
+        # One-Hot Encode categorical variables
+        X = pd.get_dummies(X, drop_first=True)
 
-        plt.figure(figsize=(8,6))
-        ct = pd.crosstab(self.df['PercentSalaryHike'], self.df['Attrition'], normalize='index') * 100
-        counts = self.df['PercentSalaryHike'].value_counts().sort_index()
-        ax = ct.plot(kind='bar', stacked=True)
-        plt.title("Percentage of Attrition by Percent Salary Hike")
-        plt.xlabel("Percent Salary Hike")
-        plt.ylabel("Percentage (%)")
-        plt.legend(title='Attrition')
-        plt.xticks(rotation=0)
-        # Add count labels on top of bars, only once at the top of each column
-        labels = [str(counts.get(i, 0)) for i in sorted(counts.index)]
-        for i, container in enumerate(ax.containers):
-            if i == 0:
-                ax.bar_label(container, labels=labels)
-            else:
-                ax.bar_label(container, labels=['']*len(labels))
-        plt.tight_layout()
-        plt.show()
+        # Normalize numeric features
+        scaler = StandardScaler()
+        numeric_cols = ['Age', 'MonthlyIncome', 'YearsAtCompany']
+        X[numeric_cols] = scaler.fit_transform(X[numeric_cols])
 
-    def plot_relationship_satisfaction_vs_attrition(self):
-        import matplotlib.pyplot as plt
-        import pandas as pd
+        # 👇 Cast explicitly to float64
+        self.X_train, self.X_test, self.y_train, self.y_test = train_test_split(
+            X.values.astype(np.float64), y.values.astype(np.float64), test_size=0.2, random_state=42)
 
-        if 'RelationshipSatisfaction' not in self.df.columns:
-            print("Column 'RelationshipSatisfaction' not found in data. Skipping plot.")
-            return
 
-        plt.figure(figsize=(8,6))
-        ct = pd.crosstab(self.df['RelationshipSatisfaction'], self.df['Attrition'], normalize='index') * 100
-        counts = self.df['RelationshipSatisfaction'].value_counts().sort_index()
-        ax = ct.plot(kind='bar', stacked=True)
-        plt.title("Percentage of Attrition by Relationship Satisfaction")
-        plt.xlabel("Relationship Satisfaction")
-        plt.ylabel("Percentage (%)")
-        plt.legend(title='Attrition')
-        plt.xticks(rotation=0)
-        # Add count labels on top of bars, only once at the top of each column
-        labels = [str(counts.get(i, 0)) for i in sorted(counts.index)]
-        for i, container in enumerate(ax.containers):
-            if i == 0:
-                ax.bar_label(container, labels=labels)
-            else:
-                ax.bar_label(container, labels=['']*len(labels))
-        plt.tight_layout()
-        plt.show()
 
-    def plot_years_with_curr_manager_vs_attrition(self):
-        import matplotlib.pyplot as plt
-        import pandas as pd
+import numpy as np
+class LogisticRegressionGD:
+    def __init__(self, learning_rate=0.01, num_iterations=1000):
+        self.learning_rate = learning_rate
+        self.num_iterations = num_iterations
+        
+    def sigmoid(self, z):
+        z = np.array(z, dtype=np.float64)   # ensure it's proper numpy float
+        return 1 / (1 + np.exp(-z))
+    
+    def fit(self, X, y):
+        X = np.hstack((np.ones((X.shape[0], 1)), X))
+        self.theta = np.zeros(X.shape[1])
 
-        if 'YearsWithCurrManager' not in self.df.columns:
-            print("Column 'YearsWithCurrManager' not found in data. Skipping plot.")
-            return
-
-        plt.figure(figsize=(8,6))
-        ct = pd.crosstab(self.df['YearsWithCurrManager'], self.df['Attrition'], normalize='index') * 100
-        counts = self.df['YearsWithCurrManager'].value_counts().sort_index()
-        ax = ct.plot(kind='bar', stacked=True)
-        plt.title("Percentage of Attrition by Years With Current Manager")
-        plt.xlabel("Years With Current Manager")
-        plt.ylabel("Percentage (%)")
-        plt.legend(title='Attrition')
-        plt.xticks(rotation=0)
-        labels = [str(counts.get(i, 0)) for i in sorted(counts.index)]
-        for i, container in enumerate(ax.containers):
-            if i == 0:
-                ax.bar_label(container, labels=labels)
-            else:
-                ax.bar_label(container, labels=['']*len(labels))
-        plt.tight_layout()
-        plt.show()
-
-    def plot_years_since_last_promotion_vs_attrition(self):
-        import matplotlib.pyplot as plt
-        import pandas as pd
-
-        if 'YearsSinceLastPromotion' not in self.df.columns:
-            print("Column 'YearsSinceLastPromotion' not found in data. Skipping plot.")
-            return
-
-        plt.figure(figsize=(8,6))
-        ct = pd.crosstab(self.df['YearsSinceLastPromotion'], self.df['Attrition'], normalize='index') * 100
-        counts = self.df['YearsSinceLastPromotion'].value_counts().sort_index()
-        ax = ct.plot(kind='bar', stacked=True)
-        plt.title("Percentage of Attrition by Years Since Last Promotion")
-        plt.xlabel("Years Since Last Promotion")
-        plt.ylabel("Percentage (%)")
-        plt.legend(title='Attrition')
-        plt.xticks(rotation=0)
-        labels = [str(counts.get(i, 0)) for i in sorted(counts.index)]
-        for i, container in enumerate(ax.containers):
-            if i == 0:
-                ax.bar_label(container, labels=labels)
-            else:
-                ax.bar_label(container, labels=['']*len(labels))
-        plt.tight_layout()
-        plt.show()
-
-    def plot_training_time_last_year_vs_attrition(self):
-        import matplotlib.pyplot as plt
-        import pandas as pd
-
-        if 'TrainingTimesLastYear' not in self.df.columns:
-            print("Column 'TrainingTimesLastYear' not found in data. Skipping plot.")
-            return
-
-        plt.figure(figsize=(8,6))
-        ct = pd.crosstab(self.df['TrainingTimesLastYear'], self.df['Attrition'], normalize='index') * 100
-        counts = self.df['TrainingTimesLastYear'].value_counts().sort_index()
-        ax = ct.plot(kind='bar', stacked=True)
-        plt.title("Percentage of Attrition by Training Times Last Year")
-        plt.xlabel("Training Times Last Year")
-        plt.ylabel("Percentage (%)")
-        plt.legend(title='Attrition')
-        plt.xticks(rotation=0)
-        labels = [str(counts.get(i, 0)) for i in sorted(counts.index)]
-        for i, container in enumerate(ax.containers):
-            if i == 0:
-                ax.bar_label(container, labels=labels)
-            else:
-                ax.bar_label(container, labels=['']*len(labels))
-        plt.tight_layout()
-        plt.show()
-
-    def plot_total_working_years_vs_attrition(self):
-        import matplotlib.pyplot as plt
-        import pandas as pd
-
-        if 'TotalWorkingYears' not in self.df.columns:
-            print("Column 'TotalWorkingYears' not found in data. Skipping plot.")
-            return
-
-        plt.figure(figsize=(8,6))
-        ct = pd.crosstab(self.df['TotalWorkingYears'], self.df['Attrition'], normalize='index') * 100
-        counts = self.df['TotalWorkingYears'].value_counts().sort_index()
-        ax = ct.plot(kind='bar', stacked=True)
-        plt.title("Percentage of Attrition by Total Working Years")
-        plt.xlabel("Total Working Years")
-        plt.ylabel("Percentage (%)")
-        plt.legend(title='Attrition')
-        plt.xticks(rotation=0)
-        labels = [str(counts.get(i, 0)) for i in sorted(counts.index)]
-        for i, container in enumerate(ax.containers):
-            if i == 0:
-                ax.bar_label(container, labels=labels)
-            else:
-                ax.bar_label(container, labels=['']*len(labels))
-        plt.tight_layout()
-        plt.show()
-
-    def plot_stock_option_level_vs_attrition(self):
-        import matplotlib.pyplot as plt
-        import pandas as pd
-
-        if 'StockOptionLevel' not in self.df.columns:
-            print("Column 'StockOptionLevel' not found in data. Skipping plot.")
-            return
-
-        plt.figure(figsize=(8,6))
-        ct = pd.crosstab(self.df['StockOptionLevel'], self.df['Attrition'], normalize='index') * 100
-        counts = self.df['StockOptionLevel'].value_counts().sort_index()
-        ax = ct.plot(kind='bar', stacked=True)
-        plt.title("Percentage of Attrition by Stock Option Level")
-        plt.xlabel("Stock Option Level")
-        plt.ylabel("Percentage (%)")
-        plt.legend(title='Attrition')
-        plt.xticks(rotation=0)
-        labels = [str(counts.get(i, 0)) for i in sorted(counts.index)]
-        for i, container in enumerate(ax.containers):
-            if i == 0:
-                ax.bar_label(container, labels=labels)
-            else:
-                ax.bar_label(container, labels=['']*len(labels))
-        plt.tight_layout()
-        plt.show()
+        for i in range(self.num_iterations):
+            z = np.dot(X, self.theta)
+            h = self.sigmoid(z)
+            gradient = np.dot(X.T, (h - y)) / y.size
+            self.theta -= self.learning_rate * gradient
+            
+    def predict_prob(self, X):
+        X = np.hstack((np.ones((X.shape[0], 1)), X))
+        return self.sigmoid(np.dot(X, self.theta))
+    
+    def predict(self, X, threshold=0.5):
+        return self.predict_prob(X) >= threshold

@@ -1,6 +1,7 @@
-
 import sys
 import os
+from tabulate import tabulate
+from sklearn.metrics import confusion_matrix, classification_report
 sys.path.insert(0, os.path.abspath("python-analysis"))
 
 import analysis_module as am
@@ -49,7 +50,7 @@ def run_tests():
                 'min': col_data.min(),
                 'max': col_data.max()
             }
-    from tabulate import tabulate
+    
     # Convert discrete_stats dict to a table format for pretty printing
     headers = ["Variable", "Mean", "Median", "Mode", "Range", "Variance", "Std Dev", "Min", "Max"]
     table = []
@@ -76,35 +77,6 @@ def run_tests():
     # print("Plotting StandardHours distribution...")
     # analysis.plot_standard_hours_distribution()
 
-    # Removed job involvement vs attrition plot as per user request
-    # print("Plotting job involvement vs attrition...")
-    # analysis.plot_job_involvement_vs_attrition()
-
-    # Removed number of companies worked vs attrition plot as per user request
-    # print("Plotting number of companies worked vs attrition...")
-    # analysis.plot_num_companies_vs_attrition()
-
-    print("Plotting percent salary hike vs attrition...")
-    analysis.plot_percent_salary_hike_vs_attrition()
-
-    print("Plotting relationship satisfaction vs attrition...")
-    analysis.plot_relationship_satisfaction_vs_attrition()
-
-    print("Plotting years with current manager vs attrition...")
-    analysis.plot_years_with_curr_manager_vs_attrition()
-
-    print("Plotting years since last promotion vs attrition...")
-    analysis.plot_years_since_last_promotion_vs_attrition()
-
-    print("Plotting training times last year vs attrition...")
-    analysis.plot_training_time_last_year_vs_attrition()
-
-    print("Plotting total working years vs attrition...")
-    analysis.plot_total_working_years_vs_attrition()
-
-    print("Plotting stock option level vs attrition...")
-    analysis.plot_stock_option_level_vs_attrition()
-
     print("Plotting percentage bar charts for selected variables...")
     analysis.plot_percentage_bars()
 
@@ -124,5 +96,34 @@ def run_tests():
     print("Model Coefficients:")
     print(coeffs)
 
+
+def run_gd_logistic_regression():
+    loader = am.DataLoader()
+    loader.load_csv_files()
+    loader.load_excel_file()
+    loader.merge_data()
+    loader.clean_data()
+
+    analysis = am.Analysis(loader.df)
+    analysis.prepare_data_for_gd_logistic()
+
+    # Initialize and train your custom logistic regression
+    gd_model = am.LogisticRegressionGD(learning_rate=0.01, num_iterations=10000)
+    gd_model.fit(analysis.X_train, analysis.y_train)
+
+    # Predict
+    y_pred = gd_model.predict(analysis.X_test)
+
+    # Evaluate
+    print("\n--- Custom Logistic Regression (Gradient Descent) ---")
+    print("Confusion Matrix:")
+    print(confusion_matrix(analysis.y_test, y_pred))
+
+    print("\nClassification Report:")
+    print(classification_report(analysis.y_test, y_pred))
+
+
+
 if __name__ == "__main__":
     run_tests()
+    run_gd_logistic_regression()
