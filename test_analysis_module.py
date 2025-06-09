@@ -1,3 +1,4 @@
+
 import sys
 import os
 sys.path.insert(0, os.path.abspath("python-analysis"))
@@ -74,6 +75,35 @@ def run_tests():
     # Removed plotting StandardHours distribution as method does not exist
     # print("Plotting StandardHours distribution...")
     # analysis.plot_standard_hours_distribution()
+
+    # Removed job involvement vs attrition plot as per user request
+    # print("Plotting job involvement vs attrition...")
+    # analysis.plot_job_involvement_vs_attrition()
+
+    # Removed number of companies worked vs attrition plot as per user request
+    # print("Plotting number of companies worked vs attrition...")
+    # analysis.plot_num_companies_vs_attrition()
+
+    print("Plotting percent salary hike vs attrition...")
+    analysis.plot_percent_salary_hike_vs_attrition()
+
+    print("Plotting relationship satisfaction vs attrition...")
+    analysis.plot_relationship_satisfaction_vs_attrition()
+
+    print("Plotting years with current manager vs attrition...")
+    analysis.plot_years_with_curr_manager_vs_attrition()
+
+    print("Plotting years since last promotion vs attrition...")
+    analysis.plot_years_since_last_promotion_vs_attrition()
+
+    print("Plotting training times last year vs attrition...")
+    analysis.plot_training_time_last_year_vs_attrition()
+
+    print("Plotting total working years vs attrition...")
+    analysis.plot_total_working_years_vs_attrition()
+
+    print("Plotting stock option level vs attrition...")
+    analysis.plot_stock_option_level_vs_attrition()
 
     print("Plotting percentage bar charts for selected variables...")
     analysis.plot_percentage_bars()

@@ -183,3 +183,229 @@ class Analysis:
         sns.boxplot(x='Attrition', y=column, data=self.df)
         plt.title(f"{column} by Attrition")
         plt.show()
+
+    def plot_job_involvement_vs_attrition(self):
+        import matplotlib.pyplot as plt
+        import pandas as pd
+
+        plt.figure(figsize=(8,6))
+        ct = pd.crosstab(self.df['JobInvolvement'], self.df['Attrition'], normalize='index') * 100
+        counts = self.df['JobInvolvement'].value_counts().sort_index()
+        ax = ct.plot(kind='bar', stacked=True)
+        plt.title("Percentage of Attrition by Job Involvement")
+        plt.xlabel("Job Involvement")
+        plt.ylabel("Percentage (%)")
+        plt.legend(title='Attrition')
+        plt.xticks(rotation=0)
+        # Add count labels on top of bars, only once at the top of each column
+        labels = [str(counts.get(i, 0)) for i in sorted(counts.index)]
+        for i, container in enumerate(ax.containers):
+            if i == 0:
+                ax.bar_label(container, labels=labels)
+            else:
+                ax.bar_label(container, labels=['']*len(labels))
+        plt.tight_layout()
+        plt.show()
+
+    def plot_num_companies_vs_attrition(self):
+        import matplotlib.pyplot as plt
+        import pandas as pd
+
+        plt.figure(figsize=(8,6))
+        ct = pd.crosstab(self.df['NumCompaniesWorked'], self.df['Attrition'])
+        counts = self.df['NumCompaniesWorked'].value_counts().sort_index()
+        ax = ct.plot(kind='bar', stacked=False)
+        plt.title("Number of Employees by NumCompaniesWorked and Attrition")
+        plt.xlabel("Number of Companies Worked")
+        plt.ylabel("Number of Employees")
+        plt.legend(title='Attrition')
+        plt.xticks(rotation=0)
+        # Add count labels on top of bars, only once at the top of each column
+        labels = [str(counts.get(i, 0)) for i in sorted(counts.index)]
+        for i, container in enumerate(ax.containers):
+            if i == 0:
+                ax.bar_label(container, labels=labels)
+            else:
+                ax.bar_label(container, labels=['']*len(labels))
+        plt.tight_layout()
+        plt.show()
+
+    def plot_percent_salary_hike_vs_attrition(self):
+        import matplotlib.pyplot as plt
+        import pandas as pd
+
+        plt.figure(figsize=(8,6))
+        ct = pd.crosstab(self.df['PercentSalaryHike'], self.df['Attrition'], normalize='index') * 100
+        counts = self.df['PercentSalaryHike'].value_counts().sort_index()
+        ax = ct.plot(kind='bar', stacked=True)
+        plt.title("Percentage of Attrition by Percent Salary Hike")
+        plt.xlabel("Percent Salary Hike")
+        plt.ylabel("Percentage (%)")
+        plt.legend(title='Attrition')
+        plt.xticks(rotation=0)
+        # Add count labels on top of bars, only once at the top of each column
+        labels = [str(counts.get(i, 0)) for i in sorted(counts.index)]
+        for i, container in enumerate(ax.containers):
+            if i == 0:
+                ax.bar_label(container, labels=labels)
+            else:
+                ax.bar_label(container, labels=['']*len(labels))
+        plt.tight_layout()
+        plt.show()
+
+    def plot_relationship_satisfaction_vs_attrition(self):
+        import matplotlib.pyplot as plt
+        import pandas as pd
+
+        if 'RelationshipSatisfaction' not in self.df.columns:
+            print("Column 'RelationshipSatisfaction' not found in data. Skipping plot.")
+            return
+
+        plt.figure(figsize=(8,6))
+        ct = pd.crosstab(self.df['RelationshipSatisfaction'], self.df['Attrition'], normalize='index') * 100
+        counts = self.df['RelationshipSatisfaction'].value_counts().sort_index()
+        ax = ct.plot(kind='bar', stacked=True)
+        plt.title("Percentage of Attrition by Relationship Satisfaction")
+        plt.xlabel("Relationship Satisfaction")
+        plt.ylabel("Percentage (%)")
+        plt.legend(title='Attrition')
+        plt.xticks(rotation=0)
+        # Add count labels on top of bars, only once at the top of each column
+        labels = [str(counts.get(i, 0)) for i in sorted(counts.index)]
+        for i, container in enumerate(ax.containers):
+            if i == 0:
+                ax.bar_label(container, labels=labels)
+            else:
+                ax.bar_label(container, labels=['']*len(labels))
+        plt.tight_layout()
+        plt.show()
+
+    def plot_years_with_curr_manager_vs_attrition(self):
+        import matplotlib.pyplot as plt
+        import pandas as pd
+
+        if 'YearsWithCurrManager' not in self.df.columns:
+            print("Column 'YearsWithCurrManager' not found in data. Skipping plot.")
+            return
+
+        plt.figure(figsize=(8,6))
+        ct = pd.crosstab(self.df['YearsWithCurrManager'], self.df['Attrition'], normalize='index') * 100
+        counts = self.df['YearsWithCurrManager'].value_counts().sort_index()
+        ax = ct.plot(kind='bar', stacked=True)
+        plt.title("Percentage of Attrition by Years With Current Manager")
+        plt.xlabel("Years With Current Manager")
+        plt.ylabel("Percentage (%)")
+        plt.legend(title='Attrition')
+        plt.xticks(rotation=0)
+        labels = [str(counts.get(i, 0)) for i in sorted(counts.index)]
+        for i, container in enumerate(ax.containers):
+            if i == 0:
+                ax.bar_label(container, labels=labels)
+            else:
+                ax.bar_label(container, labels=['']*len(labels))
+        plt.tight_layout()
+        plt.show()
+
+    def plot_years_since_last_promotion_vs_attrition(self):
+        import matplotlib.pyplot as plt
+        import pandas as pd
+
+        if 'YearsSinceLastPromotion' not in self.df.columns:
+            print("Column 'YearsSinceLastPromotion' not found in data. Skipping plot.")
+            return
+
+        plt.figure(figsize=(8,6))
+        ct = pd.crosstab(self.df['YearsSinceLastPromotion'], self.df['Attrition'], normalize='index') * 100
+        counts = self.df['YearsSinceLastPromotion'].value_counts().sort_index()
+        ax = ct.plot(kind='bar', stacked=True)
+        plt.title("Percentage of Attrition by Years Since Last Promotion")
+        plt.xlabel("Years Since Last Promotion")
+        plt.ylabel("Percentage (%)")
+        plt.legend(title='Attrition')
+        plt.xticks(rotation=0)
+        labels = [str(counts.get(i, 0)) for i in sorted(counts.index)]
+        for i, container in enumerate(ax.containers):
+            if i == 0:
+                ax.bar_label(container, labels=labels)
+            else:
+                ax.bar_label(container, labels=['']*len(labels))
+        plt.tight_layout()
+        plt.show()
+
+    def plot_training_time_last_year_vs_attrition(self):
+        import matplotlib.pyplot as plt
+        import pandas as pd
+
+        if 'TrainingTimesLastYear' not in self.df.columns:
+            print("Column 'TrainingTimesLastYear' not found in data. Skipping plot.")
+            return
+
+        plt.figure(figsize=(8,6))
+        ct = pd.crosstab(self.df['TrainingTimesLastYear'], self.df['Attrition'], normalize='index') * 100
+        counts = self.df['TrainingTimesLastYear'].value_counts().sort_index()
+        ax = ct.plot(kind='bar', stacked=True)
+        plt.title("Percentage of Attrition by Training Times Last Year")
+        plt.xlabel("Training Times Last Year")
+        plt.ylabel("Percentage (%)")
+        plt.legend(title='Attrition')
+        plt.xticks(rotation=0)
+        labels = [str(counts.get(i, 0)) for i in sorted(counts.index)]
+        for i, container in enumerate(ax.containers):
+            if i == 0:
+                ax.bar_label(container, labels=labels)
+            else:
+                ax.bar_label(container, labels=['']*len(labels))
+        plt.tight_layout()
+        plt.show()
+
+    def plot_total_working_years_vs_attrition(self):
+        import matplotlib.pyplot as plt
+        import pandas as pd
+
+        if 'TotalWorkingYears' not in self.df.columns:
+            print("Column 'TotalWorkingYears' not found in data. Skipping plot.")
+            return
+
+        plt.figure(figsize=(8,6))
+        ct = pd.crosstab(self.df['TotalWorkingYears'], self.df['Attrition'], normalize='index') * 100
+        counts = self.df['TotalWorkingYears'].value_counts().sort_index()
+        ax = ct.plot(kind='bar', stacked=True)
+        plt.title("Percentage of Attrition by Total Working Years")
+        plt.xlabel("Total Working Years")
+        plt.ylabel("Percentage (%)")
+        plt.legend(title='Attrition')
+        plt.xticks(rotation=0)
+        labels = [str(counts.get(i, 0)) for i in sorted(counts.index)]
+        for i, container in enumerate(ax.containers):
+            if i == 0:
+                ax.bar_label(container, labels=labels)
+            else:
+                ax.bar_label(container, labels=['']*len(labels))
+        plt.tight_layout()
+        plt.show()
+
+    def plot_stock_option_level_vs_attrition(self):
+        import matplotlib.pyplot as plt
+        import pandas as pd
+
+        if 'StockOptionLevel' not in self.df.columns:
+            print("Column 'StockOptionLevel' not found in data. Skipping plot.")
+            return
+
+        plt.figure(figsize=(8,6))
+        ct = pd.crosstab(self.df['StockOptionLevel'], self.df['Attrition'], normalize='index') * 100
+        counts = self.df['StockOptionLevel'].value_counts().sort_index()
+        ax = ct.plot(kind='bar', stacked=True)
+        plt.title("Percentage of Attrition by Stock Option Level")
+        plt.xlabel("Stock Option Level")
+        plt.ylabel("Percentage (%)")
+        plt.legend(title='Attrition')
+        plt.xticks(rotation=0)
+        labels = [str(counts.get(i, 0)) for i in sorted(counts.index)]
+        for i, container in enumerate(ax.containers):
+            if i == 0:
+                ax.bar_label(container, labels=labels)
+            else:
+                ax.bar_label(container, labels=['']*len(labels))
+        plt.tight_layout()
+        plt.show()
