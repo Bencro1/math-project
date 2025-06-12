@@ -56,7 +56,7 @@ class Analysis:
         import matplotlib.pyplot as plt
         import seaborn as sns
 
-        cols = ['Age', 'EducationField', 'JobRole', 'MonthlyIncome', 'YearsAtCompany']
+        cols = ['Age', 'EducationField', 'JobRole', 'MonthlyIncome', 'YearsAtCompany', 'TotalWorkingYears']
         for col in cols:
             plt.figure(figsize=(10,6))
             if pd.api.types.is_numeric_dtype(self.df[col]):
@@ -77,6 +77,32 @@ class Analysis:
             plt.tight_layout()
             plt.show()
 
+    def plot_total_working_years_vs_attrition(self):
+        import matplotlib.pyplot as plt
+        import pandas as pd
+
+        if 'TotalWorkingYears' not in self.df.columns:
+            print("Column 'TotalWorkingYears' not found in data. Skipping plot.")
+            return
+
+        plt.figure(figsize=(8,6))
+        ct = pd.crosstab(self.df['TotalWorkingYears'], self.df['Attrition'], normalize='index') * 100
+        counts = self.df['TotalWorkingYears'].value_counts().sort_index()
+        ax = ct.plot(kind='bar', stacked=True)
+        plt.title("Percentage of Attrition by Total Working Years")
+        plt.xlabel("Total Working Years")
+        plt.ylabel("Percentage (%)")
+        plt.legend(title='Attrition')
+        plt.xticks(rotation=0)
+        labels = [str(counts.get(i, 0)) for i in sorted(counts.index)]
+        for i, container in enumerate(ax.containers):
+            if i == 0:
+                ax.bar_label(container, labels=labels)
+            else:
+                ax.bar_label(container, labels=['']*len(labels))
+        plt.tight_layout()
+        plt.show()
+
     def contingency_tables(self):
         from tabulate import tabulate
         print("Contingency Tables for selected variables:")
@@ -90,7 +116,8 @@ class Analysis:
         import matplotlib.pyplot as plt
         import seaborn as sns
 
-        variables = ['EnvironmentSatisfaction', 'JobSatisfaction', 'WorkLifeBalance']
+        # Replace the percentage bar plots for PercentSalaryHike and YearsWithCurrManager
+        variables = ['EnvironmentSatisfaction', 'JobSatisfaction', 'WorkLifeBalance', 'TotalWorkingYears']
         for var in variables:
             plt.figure(figsize=(8,6))
             ct = pd.crosstab(self.df[var], self.df['Attrition'], normalize='index') * 100
@@ -110,6 +137,40 @@ class Analysis:
                     ax.bar_label(container, labels=['']*len(labels))
             plt.tight_layout()
             plt.show()
+
+    def plot_percent_salary_hike_vs_attrition(self):
+        import matplotlib.pyplot as plt
+        import seaborn as sns
+
+        if 'PercentSalaryHike' not in self.df.columns:
+            print("Column 'PercentSalaryHike' not found in data. Skipping plot.")
+            return
+
+        plt.figure(figsize=(10,6))
+        sns.histplot(data=self.df, x='PercentSalaryHike', hue='Attrition', multiple='dodge', shrink=0.8, bins=20)
+        plt.title("Number of Employees by Percent Salary Hike and Attrition")
+        plt.xlabel("Percent Salary Hike")
+        plt.ylabel("Number of Employees")
+        plt.xticks(rotation=45, ha='right')
+        plt.tight_layout()
+        plt.show()
+
+    def plot_years_with_curr_manager_vs_attrition(self):
+        import matplotlib.pyplot as plt
+        import seaborn as sns
+
+        if 'YearsWithCurrManager' not in self.df.columns:
+            print("Column 'YearsWithCurrManager' not found in data. Skipping plot.")
+            return
+
+        plt.figure(figsize=(10,6))
+        sns.histplot(data=self.df, x='YearsWithCurrManager', hue='Attrition', multiple='dodge', shrink=0.8, bins=20)
+        plt.title("Number of Employees by Years With Current Manager and Attrition")
+        plt.xlabel("Years With Current Manager")
+        plt.ylabel("Number of Employees")
+        plt.xticks(rotation=45, ha='right')
+        plt.tight_layout()
+        plt.show()
 
     def plot_distribution(self, column, bins=5):
         plt.figure(figsize=(8,4))

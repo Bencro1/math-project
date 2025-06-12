@@ -73,12 +73,13 @@ def run_tests():
     print("Plotting attrition vs all variables...")
     analysis.plot_attrition_vs_all()
 
-    # Removed plotting StandardHours distribution as method does not exist
-    # print("Plotting StandardHours distribution...")
-    # analysis.plot_standard_hours_distribution()
-
     print("Plotting percentage bar charts for selected variables...")
     analysis.plot_percentage_bars()
+
+    print("Plotting PercentSalaryHike vs Attrition...")
+    analysis.plot_percent_salary_hike_vs_attrition()
+    print("Plotting YearsWithCurrManager vs Attrition...")
+    analysis.plot_years_with_curr_manager_vs_attrition()
 
     print("Printing contingency tables...")
     analysis.contingency_tables()
